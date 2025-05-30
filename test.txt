@@ -1,0 +1,48 @@
+en contenido coloca un select que diga todos los apartados y 
+ DOCUMENTOS, 
+  ---
+     CABILDO
+     
+     Consulta publica 
+        
+        Espacio para preguntas y respuestas CIUDADANOS
+
+     Directorio
+        
+            Numeros de telefono y cuerpos de emergencias
+
+     Gaceta municipal
+           descripcion
+         fecha
+         pdf url
+     Listado de tramites 
+
+
+-Catastro
+-Contraloria
+-cultura
+
+
+
+
+
+
+           descripcion
+         fecha
+         pdf url
+     Protesta ciudadana
+         descripcion
+         fecha
+         pdf url
+
+
+
+     -----
+
+
+ TRANSMISIONES EN VIVO, 
+ CAROUSEL ANUNCIOS Y NOTICIAS
+ CONVOCATORIAS
+ DIF
+
+
