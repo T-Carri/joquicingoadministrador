@@ -1,13 +1,13 @@
-import { useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 
-interface Document {
+/* interface Document {
   id: number;
   name: string;
   section: string;
   subSection: string;
   description: string;
-}
+} */
 
 interface NewDocument {
   file: File | null;
@@ -23,8 +23,10 @@ interface SubSections {
 
 const Documentos = () => {
   const navigate = useNavigate();
-  const [selectedSection, setSelectedSection] = useState<string>('');
-  const [selectedSubSection, setSelectedSubSection] = useState<string>('');
+
+
+  const [Selection, setSelection] = useState<string>('');
+
   const [newDocument, setNewDocument] = useState<NewDocument>({
     file: null,
     name: '',
@@ -34,7 +36,33 @@ const Documentos = () => {
   });
 
   // Sample data
-  const sections: string[] = ['Listado de tramites', 'Registro municipal de inspectores', 'Normativa', 'Protesta ciudadana', 'Gaceta Municipal', 'Edictos'];
+  const sections: any[] = [
+    {
+      path: "addgacetasmunicipal",
+      label: "Gacetas municipal"
+    },
+    {
+      path: "",
+      label: "Listado de tramites"
+    },
+    {
+      path: "",
+      label: "Registro municipal de inspectores"
+    },
+    {
+      path: "",
+      label: "Normativa"
+    },
+    {
+      path: "",
+      label: "Protesta ciudadana"
+    },
+    {
+      path: "",
+      label: "Edictos"
+    }
+  ]
+   
   const subSections: SubSections = {
     'Listado de tramites': ['Catastro', 'Contraloria', 'Cultura', 'Desarrollo económico', ' Dirección de la mujer', 'Dirección del campo', 'Ecología', 'Educación', 'Juzgado cívico', 'Obras públicas y desarrollo urbano', 'Prevención del delito', 'Registro civíl', 'Secretaria del ayuntamiento', 'Seguridad pública', 'Servicios públicos'],
     'Registro municipal de inspectores': ['Catastro', 'Desarrollo económico', 'Desarrollo urbano', 'Ecologia', 'Proteccion civíl', 'Servicios públicos'],
@@ -44,16 +72,7 @@ const Documentos = () => {
     
   };
 
-  const documents: Document[] = [
-    { id: 1, name: 'Manual de Branding.pdf', section: 'Marketing', subSection: 'Branding', description: 'Guía de identidad corporativa' },
-    { id: 2, name: 'Política de Teletrabajo.pdf', section: 'Recursos Humanos', subSection: 'Políticas', description: 'Reglas para trabajo remoto' },
-    { id: 3, name: 'Contrato Modelo.pdf', section: 'Legal', subSection: 'Contratos', description: 'Plantilla para nuevos clientes' },
-  ];
 
-  const filteredDocuments = documents.filter(doc => 
-    (!selectedSection || doc.section === selectedSection) &&
-    (!selectedSubSection || doc.subSection === selectedSubSection)
-  );
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -142,23 +161,28 @@ const Documentos = () => {
             marginTop: 0,
             marginBottom: '25px',
             fontSize: '22px'
-          }}>Filtros y Carga</h2>
+          }}>Gestionar documentos</h2>
           
           {/* Filters */}
           <div style={{ marginBottom: '30px' }}>
+
+        {/* CATEGORIAS DE DOCUMENTOS */}
             <div style={{ marginBottom: '20px' }}>
               <label style={{
                 display: 'block',
                 marginBottom: '8px',
                 fontWeight: '600',
                 color: '#34495e'
-              }}>Seleccionar categoría:</label>
+              }}>Seleccionar apartado:</label>
               <select 
-                value={selectedSection}
-                onChange={(e) => {
-                  setSelectedSection(e.target.value);
-                  setSelectedSubSection('');
-                }}
+                value={Selection}
+              onChange={(e) => {
+    const selectedPath = e.target.value;
+    setSelection(selectedPath);
+    if (selectedPath) {
+      navigate(selectedPath);
+    }
+  }}
                 style={{ 
                   width: '100%',
                   padding: '12px',
@@ -168,14 +192,16 @@ const Documentos = () => {
                   backgroundColor: '#f8f9fa'
                 }}
               >
-                <option value="">Todas las categorías</option>
-                {sections.map(section => (
-                  <option key={section} value={section}>{section}</option>
+              
+                {sections.map((section, index) => (
+                  <option key={index} value={section.path}>{section.label}</option>
                 ))}
               </select>
             </div>
+
+<Outlet />
             
-            {selectedSection && subSections[selectedSection] && (
+          {/*   {selectedSection && subSections[selectedSection] && (
               <div style={{ marginBottom: '20px' }}>
                 <label style={{
                   display: 'block',
@@ -201,145 +227,16 @@ const Documentos = () => {
                   ))}
                 </select>
               </div>
-            )}
+            )} */}
           </div>
           
-          {/* Upload Form */}
-          <div style={{
-            borderTop: '1px solid #eee',
-            paddingTop: '25px'
-          }}>
-            <h3 style={{
-              color: '#4a6fa5',
-              marginTop: 0,
-              marginBottom: '20px',
-              fontSize: '18px'
-            }}>Cargar Nuevo Documento</h3>
-            
-            <form onSubmit={handleSubmit}>
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{
-                  display: 'block',
-                  marginBottom: '8px',
-                  fontWeight: '600',
-                  color: '#34495e'
-                }}>Nombre del documento:</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={newDocument.name}
-                  onChange={handleInputChange}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    borderRadius: '8px',
-                    border: '1px solid #ddd',
-                    fontSize: '16px'
-                  }}
-                />
-              </div>
-              
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{
-                  display: 'block',
-                  marginBottom: '8px',
-                  fontWeight: '600',
-                  color: '#34495e'
-                }}>Descripción:</label>
-                <textarea
-                  name="description"
-                  value={newDocument.description}
-                  onChange={handleInputChange}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    borderRadius: '8px',
-                    border: '1px solid #ddd',
-                    fontSize: '16px',
-                    minHeight: '80px'
-                  }}
-                />
-              </div>
-              
-    
-              {newDocument.section && subSections[newDocument.section] && (
-                <div style={{ marginBottom: '15px' }}>
-                  <label style={{
-                    display: 'block',
-                    marginBottom: '8px',
-                    fontWeight: '600',
-                    color: '#34495e'
-                  }}>Subcategoría:</label>
-                  <select 
-                    name="subSection"
-                    value={newDocument.subSection}
-                    onChange={handleInputChange}
-                    style={{ 
-                      width: '100%',
-                      padding: '12px',
-                      borderRadius: '8px',
-                      border: '1px solid #ddd',
-                      fontSize: '16px'
-                    }}
-                  >
-                    <option value="">Seleccionar subcategoría</option>
-                    {subSections[newDocument.section].map(subSection => (
-                      <option key={subSection} value={subSection}>{subSection}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-              
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{
-                  display: 'block',
-                  marginBottom: '8px',
-                  fontWeight: '600',
-                  color: '#34495e'
-                }}>Archivo PDF:</label>
-                <input
-                  type="file"
-                  accept=".pdf"
-                  onChange={handleFileChange}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    borderRadius: '8px',
-                    border: '1px solid #ddd',
-                    fontSize: '16px',
-                    backgroundColor: '#f8f9fa'
-                  }}
-                />
-              </div>
-              
-              <button
-                type="submit"
-                style={{
-                  width: '100%',
-                  padding: '14px',
-                  backgroundColor: '#4a6fa5',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.3s'
-                }}
-                onMouseOver={(e) => (e.target as HTMLButtonElement).style.backgroundColor = '#3a5a8f'}
-                onMouseOut={(e) => (e.target as HTMLButtonElement).style.backgroundColor = '#4a6fa5'}
-              >
-                Subir Documento
-              </button>
-            </form>
-          </div>
+   
+
+          
         </div>
         
         {/* Right Panel - Documents List */}
-        <div style={{
+    {/*     <div style={{
           flex: 1,
           backgroundColor: 'white',
           borderRadius: '12px',
@@ -476,7 +373,7 @@ const Documentos = () => {
               <p style={{ margin: 0 }}>Prueba ajustando los filtros o sube un nuevo documento</p>
             </div>
           )}
-        </div>
+        </div> */}
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ import TransmisionesEnVivo from './components/TransmisionesEnVivo'
 import CarousselAnuncios from './components/CarousselAnuncios'
 import Convocatorias from './components/Convocatorias'
 import DIF from './components/DIF'
+import AddGacetasMunicipales from './components/Documentos/AddGacetasMunicipales'
 
 // Carga diferida de componentes
 const Login = lazy(() => import('./pages/login'))
@@ -30,7 +31,11 @@ createRoot(document.getElementById('root')!).render(
         >
           <Route   index element={ <Contenido/>}/>
 
-         <Route path='documentos' element={<Documentos/>} />
+         <Route path='documentos' element={<Documentos/>} >
+         <Route path='addgacetasmunicipal' element={ <AddGacetasMunicipales/>}/>
+         
+         </Route>
+         
         <Route path='transmisionesenvivo' element={<TransmisionesEnVivo/>}/>
         <Route path='carousselanuncios' element={<CarousselAnuncios/>}/>
         <Route path='convocatorias' element={<Convocatorias/>} />
