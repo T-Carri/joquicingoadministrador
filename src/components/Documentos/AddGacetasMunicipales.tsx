@@ -1,52 +1,61 @@
 import { useState } from "react"
-import { addPeriodo } from "../../firebase/gacetasmunicipal";
-import { useGacetaPeriodosGacetasMunicipal } from "../../hooks/usePeriodosGacetasMunicipal";
+import { addDocGacetaMunicipal } from "../../firebase/gacetasmunicipal"
+import type { addingDocGacetaMunicipal } from "../../interfaces"
+//import { addPeriodo } from "../../firebase/gacetasmunicipal";
+//import { useGacetaPeriodosGacetasMunicipal } from "../../hooks/usePeriodosGacetasMunicipal";
 
 
 const AddGacetasMunicipales = () => {
-  const {periodos} = useGacetaPeriodosGacetasMunicipal() 
-  const [AgregaPeriodo, setAgregaPeriodo] = useState<boolean>(false)
-  const [Period, setPeriod] = useState<string >("")
-  const [Leyenda, setLeyenda]= useState<string>("")
+const [Periodo, setPeriodo] = useState<string>("")
+const [Documento, setDocumento] = useState<addingDocGacetaMunicipal>({
+    Titulo: "",
+    Descripcion: "",
+    Documento: null
+})
 
 
 
-const handlePeriod = (e:  React.ChangeEvent<HTMLInputElement>) => {
-  const value = e.target.value;
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setDocumento((prev) => ({
+      ...prev,
+      [name === "Titulo" ? "Titulo" : "Descripcion"]: value,
+    }));
+  };
 
-  if (/^\d{0,4}$/.test(value)) {
-    // Si ya tiene 4 dígitos, validamos el rango
-    if (value.length === 4) {
-      const year = parseInt(value);
-      if (year >= 1900 && year <= 2100) {
-        setPeriod(value);
-      }
-    } else {
-      // Aún no tiene 4 dígitos, lo dejamos pasar
-      setPeriod(value);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setDocumento((prev) => ({
+      ...prev,
+      Documento: file,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!Periodo || !Documento.Titulo  || !Documento.Documento) {
+      alert("Por favor completa todos los campos.");
+      return;
     }
-  }
-};
+
+    try {
+      await addDocGacetaMunicipal(Periodo, Documento);
+      alert("Documento subido exitosamente");
+      setDocumento({ Titulo: "", Descripcion: "", Documento: null });
+      setPeriodo("");
+    } catch (error) {
+      console.error("Error al subir el documento:", error);
+      alert("Ocurrió un error al subir el documento");
+    }
+  };
 
 
-const addingPeriod = async (period:string) => {
-
-const result = addPeriodo(period)
-
-if ((await result).success){
-
-  setLeyenda((await result).message)
-setPeriod("")
-setAgregaPeriodo(false)
-} else{
-  
-  console.log(result)
-}
-
-}
 
 
-console.log('periodos', periodos)
+console.log('periodos', Periodo) 
 
   return (
     <>
@@ -61,8 +70,8 @@ console.log('periodos', periodos)
                   color: '#34495e'
                 }}>Periodo:</label>
                 <select 
-                  /* value={selectedSubSection}
-                  onChange={(e) => setSelectedSubSection(e.target.value)} */
+                   value={Periodo}
+                  onChange={(e) => setPeriodo(e.target.value)} 
                   style={{ 
                     width: '100%',
                     padding: '12px',
@@ -73,85 +82,19 @@ console.log('periodos', periodos)
                   }}
                 >
                   <option value="">Seleccione periodo</option>
-                 {/*  {subSections[selectedSection].map(subSection => (
-                    <option key={subSection} value={subSection}>{subSection}</option>
-                  ))} */}
-                </select>
-
-                {Leyenda&&
-                <div style={{ marginTop:'2rem'}}>
-
-                  <span style={{color:"green", fontWeight:'600'}}>{Leyenda}</span>
-                </div>
-                }
+                  <option value="2020">2020</option>
+                  <option value="2021">2021</option>
+                  <option value="2022">2022</option>
+                  <option value="2023">2023</option>
+                  <option value="2024">2024</option>
+                  <option value="2025">2025</option>
+                  <option value="2026">2026</option>
+                  <option value="2027">2027</option>
+                  </select>
               </div>
- <div style={{width:'100%', display:'flex', justifyContent:'end', marginBottom:'1rem'}}>
-<button 
-
-style={{borderRadius:'10px', 
-background: !AgregaPeriodo?'#213555':'#FCB454', 
-color:'white', 
-height:'3rem', 
-width:'8rem', 
-fontWeight:'700'}}
-
-onClick={()=>{
-  setAgregaPeriodo(!AgregaPeriodo)
-  setPeriod("")
-  }}
-> {!AgregaPeriodo? 'Agregar nuevo periodo': 'Ocultar'}</button>
-  </div>           
-
-            {AgregaPeriodo&&
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{
-                  display: 'block',
-                  marginBottom: '8px',
-                  fontWeight: '600',
-                  color: '#FCB454'
-                }}>Agrega Nuevo Periodo en <strong>Gacetas</strong>:</label>
-                <input
-                  type="text"
-                  name="period"
-                  value={Period}
-                  onChange={handlePeriod} 
-                pattern="\d{4}"
-  maxLength={4}
-                  style={{
-                    width: '30%',
-                    padding: '12px',
-                    borderRadius: '8px',
-                    border: '1px solid #ddd',
-                    fontSize: '16px'
-                  }}
-                />
-              </div>
-            }
-
-            {
-
-              Period!=="" && AgregaPeriodo?
-Period!=="" &&<div style={{marginBottom:'3rem', display:"flex", alignItems:'center', flexDirection:'row', gap:'3%'}}>
-
-<button style={{
-  background:'black', 
-  borderRadius:'10px', 
-  color:'white', 
-  border:'none', 
-  height:'3rem', 
-  width:'5rem'}}
-  onClick={()=>addingPeriod(Period)
-  }
-  >Agregar Periodo</button>
-        <span style={{color:'grey'}}>Agregando Periodo de Gaceta Municipal: <span style={{color:'GRAY', fontWeight:'700'}}>{Period}</span></span>
-</div>
-: null
-            }
 
 
-  
-
-
+            
        {/* Upload Form */}
           <div style={{
             borderTop: '1px solid #eee',
@@ -164,7 +107,7 @@ Period!=="" &&<div style={{marginBottom:'3rem', display:"flex", alignItems:'cent
               fontSize: '18px'
             }}>Cargar Nuevo Documento para Gacetas Municipal</h3>
             
-            <form /* onSubmit={handleSubmit} */>
+            <form  onSubmit={handleSubmit} >
            
 
            <div style={{marginBottom:'5px'}}>
@@ -176,9 +119,9 @@ Period!=="" &&<div style={{marginBottom:'3rem', display:"flex", alignItems:'cent
                 }}>Titulo de documento:</label>
                 <input
                   type="text"
-                  name="name"
-             /*      value={newDocument.name}
-                  onChange={handleInputChange} */
+                  name="Titulo"
+                 value={Documento.Titulo}
+                  onChange={handleInputChange}
                   required
                   style={{
                     width: '100%',
@@ -198,10 +141,10 @@ Period!=="" &&<div style={{marginBottom:'3rem', display:"flex", alignItems:'cent
                   color: '#34495e'
                 }}>Descripción:</label>
                 <textarea
-                  name="description"
-           /*        value={newDocument.description}
-                  onChange={handleInputChange} */
-                  required
+                  name="Descripcion"
+             value={Documento.Descripcion}
+                  onChange={handleInputChange} 
+               
                   style={{
                     width: '100%',
                     padding: '12px',
@@ -214,33 +157,7 @@ Period!=="" &&<div style={{marginBottom:'3rem', display:"flex", alignItems:'cent
               </div>
               
     
-            {/*   {newDocument.section && subSections[newDocument.section] && (
-                <div style={{ marginBottom: '15px' }}>
-                  <label style={{
-                    display: 'block',
-                    marginBottom: '8px',
-                    fontWeight: '600',
-                    color: '#34495e'
-                  }}>Subcategoría:</label>
-                  <select 
-                    name="subSection"
-                    value={newDocument.subSection}
-                    onChange={handleInputChange}
-                    style={{ 
-                      width: '100%',
-                      padding: '12px',
-                      borderRadius: '8px',
-                      border: '1px solid #ddd',
-                      fontSize: '16px'
-                    }}
-                  >
-                    <option value="">Seleccionar subcategoría</option>
-                    {subSections[newDocument.section].map(subSection => (
-                      <option key={subSection} value={subSection}>{subSection}</option>
-                    ))}
-                  </select>
-                </div>
-              )} */}
+       
               
               <div style={{ marginBottom: '20px' }}>
                 <label style={{
@@ -252,7 +169,7 @@ Period!=="" &&<div style={{marginBottom:'3rem', display:"flex", alignItems:'cent
                 <input
                   type="file"
                   accept=".pdf"
-                 /*  onChange={handleFileChange} */
+                   onChange={handleFileChange} 
                   required
                   style={{
                     width: '100%',
